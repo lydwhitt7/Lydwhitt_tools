@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lydwhitt-tools"
+version = "0.1.0"
+description = "Petrology tools"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{name = "Lydia Whittaker"}]
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy"
+]
+
+[project.urls]
+Homepage = "https://github.com/lydwhitt7/Lydwhitt_tools"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
