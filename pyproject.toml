@@ -3,24 +3,34 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lydwhitt-tools"
-version = "0.1.3"
+name = "lydwhitt-tools"                 # pip install lydwhitt-tools
+version = "0.0.0"                        # overwritten in CI from tag
 description = "Petrology tools"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "MIT"}
-authors = [{name = "Lydia Whittaker"}]
+license = { text = "MIT" }
+authors = [{ name = "Lydia Whittaker" }]
 dependencies = [
   "numpy",
   "pandas",
   "scipy"
 ]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+]
 
 [project.urls]
 Homepage = "https://github.com/lydwhitt7/Lydwhitt_tools"
+Repository = "https://github.com/lydwhitt7/Lydwhitt_tools"
+Issues = "https://github.com/lydwhitt7/Lydwhitt_tools/issues"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
