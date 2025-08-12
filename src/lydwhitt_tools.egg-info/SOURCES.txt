@@ -1,0 +1,10 @@
+LICENSE
+README.md
+pyproject.toml
+src/lydwhitt_tools/__init__.py
+src/lydwhitt_tools/mahalanobis.py
+src/lydwhitt_tools.egg-info/PKG-INFO
+src/lydwhitt_tools.egg-info/SOURCES.txt
+src/lydwhitt_tools.egg-info/dependency_links.txt
+src/lydwhitt_tools.egg-info/requires.txt
+src/lydwhitt_tools.egg-info/top_level.txt
