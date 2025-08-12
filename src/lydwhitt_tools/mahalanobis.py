@@ -9,7 +9,7 @@ def geochemical_filter(df, phase, total_perc=None, percentiles=None):
     else: 
         total = total_perc
 
-    df = df[df["Total"] >= total]
+    df1 = df[df["Total"] >= total]
 
     #Identify columns for analysis, 'type' is anything such as Cpx, Plg or Liq
     suffix = f"{phase}"
@@ -22,7 +22,7 @@ def geochemical_filter(df, phase, total_perc=None, percentiles=None):
     print(f"Using columns: {numeric_cols}")
 
     #delete rows with NA values- these are unuseable in this statistical test
-    df1 = df[[id_col]+numeric_cols].dropna(subset=numeric_cols)
+    df1 = df1[[id_col]+numeric_cols].dropna(subset=numeric_cols)
 
     df1_numeric = df1[numeric_cols]
 
