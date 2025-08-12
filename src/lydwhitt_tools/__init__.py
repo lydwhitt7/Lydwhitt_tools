@@ -1,2 +1,15 @@
-from .mahalanobis import geochemical_filter  # adjust to your function name
-__all__ = ["geochemical_filter"]
+# Public API
+from .mahalanobis import geochemical_filter  # make sure mahalanobis.py exists
+
+# Optional: expose package version (no hardcoding)
+try:
+    from importlib.metadata import version as _v
+except ImportError:  # Python <3.8 backport, but you require >=3.8 so this is mostly moot
+    from importlib_metadata import version as _v  # pragma: no cover
+
+try:
+    __version__ = _v("lydwhitt-tools")  # use the PyPI/distribution name
+except Exception:
+    __version__ = "0"  # or leave undefined
+
+__all__ = ["geochemical_filter", "__version__"]
