@@ -3,17 +3,20 @@ name: Publish to PyPI (tag-driven)
 on:
   push:
     tags:
-      - "v*"          # e.g., v0.1.3
+      - "v*"
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write    # <-- required for Trusted Publishing (OIDC)
 
     steps:
       - name: Check out
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # optional, but good practice
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,47 +35,34 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           if [[ "${GITHUB_REF_TYPE:-}" != "tag" ]]; then
             echo "This workflow must be triggered by a tag (vX.Y.Z)."
             exit 1
           fi
+          TAG="${GITHUB_REF_NAME}"        # e.g., v0.1.7
+          VERSION="${TAG#v}"              # -> 0.1.7
 
-          TAG="${GITHUB_REF_NAME}"        # e.g., v0.1.3
-          VERSION="${TAG#v}"              # -> 0.1.3
-
-          # Basic semver-ish check: X.Y or X.Y.Z (tweak as needed)
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
-            echo "Tag must be like vX.Y or vX.Y.Z (got: $TAG)"
-            exit 1
-          fi
-          echo "Tag: $TAG  ->  Version: $VERSION"
+          # Basic sanity check (X.Y or X.Y.Z)
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || { echo "Bad tag: $TAG"; exit 1; }
 
           python - << 'PY'
-          import os, sys, pathlib, re
+          import os, re, pathlib
           try:
               import tomllib  # 3.11+
           except ModuleNotFoundError:
               import tomli as tomllib
           import tomli_w
 
-          tag = os.environ["GITHUB_REF_NAME"]          # e.g., v0.1.3
+          tag = os.environ["GITHUB_REF_NAME"]
           version = tag.lstrip("v")
-
           if not re.match(r"^\d+\.\d+(\.\d+)?$", version):
-              raise SystemExit(f"Bad version from tag: {version!r}")
+              raise SystemExit(f"Bad version from tag: {version}")
 
           p = pathlib.Path("pyproject.toml")
           data = tomllib.loads(p.read_text(encoding="utf-8"))
-
-          # Fail if dynamic version is set (conflicts with writing project.version)
           proj = data.setdefault("project", {})
           if "dynamic" in proj and "version" in proj.get("dynamic", []):
-              raise SystemExit(
-                  "pyproject.toml has [project].dynamic = ['version'] "
-                  "— remove that if you want this workflow to write [project].version."
-              )
-
+              raise SystemExit("Remove [project].dynamic=['version'] when writing [project].version directly.")
           proj["version"] = version
           p.write_text(tomli_w.dumps(data), encoding="utf-8")
           print("Set project.version =", version)
@@ -81,8 +71,18 @@ jobs:
       - name: Build sdist and wheel
         run: python -m build
 
+      # Optional: print the wheel METADATA if things fail again
+      # - name: Show METADATA (debug)
+      #   if: failure()
+      #   run: |
+      #     python - << 'PY'
+      #     import glob, zipfile
+      #     whl = sorted(glob.glob('dist/*.whl'))[-1]
+      #     with zipfile.ZipFile(whl) as z:
+      #         meta = [n for n in z.namelist() if n.endswith('METADATA')][0]
+      #         print(z.read(meta).decode())
+      #     PY
+
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.10.3
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          # skip-existing: true  # uncomment if you sometimes re-run the same tag
+        uses: pypa/gh-action-pypi-publish@release/v1   # <-- newer action with metadata v2.4 support
+        # No 'with: password' here — OIDC trusted publishing handles auth
