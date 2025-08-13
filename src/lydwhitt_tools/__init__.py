@@ -1,6 +1,7 @@
 # Public API
 from .mahalanobis import geochemical_filter
 from .KDE import KDE, MD, iqr_one_peak
+from .formula_recalc import recalc
 
 # Optional: expose package version (no hardcoding)
 try:
