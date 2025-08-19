@@ -87,12 +87,12 @@ def geochemical_filter(df, phase, total_perc=None, percentiles=None):
     threshold1 = np.percentile(distances1, p1)
 
     #flag outliers
-    df1['Mahalanobis'] = distances1
-    df1['P1_Outlier'] = df1['Mahalanobis'] > threshold1
+    df1['Mahalanobis1'] = distances1
+    df1['P1_Outlier'] = df1['Mahalanobis1'] > threshold1
     
     #second pass of mahalnobis test
     #define new filtered dataset
-    df2 = df1[df1["P1_Outlier"] == False]
+    df2 = df1[df1["P1_Outlier"] == False].copy()
     df2_numeric = df2[numeric_cols] 
     print(f"Pass 1: {df1.shape[0]} rows input")
     print(f"Pass 1 output: {df2.shape[0]} rows retained")
@@ -109,15 +109,15 @@ def geochemical_filter(df, phase, total_perc=None, percentiles=None):
     threshold2 = np.percentile(distances2, p2)
 
     #flag outliers from second pass
-    df2['Mahalanobis'] = distances2
-    df2['P2_Outlier'] = df2['Mahalanobis'] > threshold2
+    df2['Mahalanobis2'] = distances2
+    df2['P2_Outlier'] = df2['Mahalanobis2'] > threshold2
 
     df3 = df2[df2["P2_Outlier"] == False]
 
     print(f"Pass 2: {df3.shape[0]} rows retained")
     print(f"Total rows lost: {df1.shape[0]-df3.shape[0]}")
 
-    merge_cols = ["Sample_ID", "P1_Outlier", "P2_Outlier"]
+    merge_cols = ["Sample_ID", "Mahalanobis1", "P1_Outlier", "P2_Outlier"]
     df3 = pd.merge(df, df3[merge_cols], on="Sample_ID", how="left")
 
     return df3
