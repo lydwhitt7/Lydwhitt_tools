@@ -117,10 +117,15 @@ def geochemical_filter(df, phase, total_perc=None, percentiles=None):
     print(f"Pass 2: {df3.shape[0]} rows retained")
     print(f"Total rows lost: {df1.shape[0]-df3.shape[0]}")
 
-    merge_cols = ["Sample_ID", "Mahalanobis1", "P1_Outlier", "P2_Outlier"]
-    df3 = pd.merge(df, df3[merge_cols], on="Sample_ID", how="left")
+    
+    df4 = pd.merge(df, df1[["Sample_ID", "Mahalanobis1", "P1_Outlier"]],
+                on="Sample_ID", how="left")
 
-    return df3
+    # attach pass-2 results to everyone who entered pass 2
+    df4 = pd.merge(df4, df2[["Sample_ID", "Mahalanobis2", "P2_Outlier"]],
+                on="Sample_ID", how="left")
+
+    return df4
 
 
 
