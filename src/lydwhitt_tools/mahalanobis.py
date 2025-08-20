@@ -117,13 +117,18 @@ def geochemical_filter(df, phase, total_perc=None, percentiles=None):
     print(f"Pass 2: {df3.shape[0]} rows retained")
     print(f"Total rows lost: {df1.shape[0]-df3.shape[0]}")
 
-    # Get common columns between df and df1 dataframes (its the same for df2)
-    common_columns = set(df.columns).intersection(df1.columns)
+    # Get common columns between df and df1 dataframes 
+    common_columns1 = set(df.columns).intersection(df1.columns)
     # Exclude 'Sample Name' column from common columns
-    common_columns.discard('Sample_ID')
+    common_columns1.discard('Sample_ID')
     # Drop common columns from df1 and df2 dataframes dataframe
-    df1_dropped = df1.drop(columns=common_columns, errors='ignore')
-    df2_dropped = df2.drop(columns=common_columns, errors='ignore')
+    df1_dropped = df1.drop(columns=common_columns1, errors='ignore')
+      # Get common columns between df and df2 dataframes 
+    common_columns2 = set(df.columns).intersection(df2.columns)
+    # Exclude 'Sample Name' column from common columns
+    common_columns2.discard('Sample_ID')
+    # Drop common columns from df1 and df2 dataframes dataframe
+    df2_dropped = df2.drop(columns=common_columns2, errors='ignore')
     
     df = pd.merge(df, df1_dropped, on="Sample_ID", how="left")
 
