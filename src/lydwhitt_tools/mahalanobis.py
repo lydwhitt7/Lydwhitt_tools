@@ -122,18 +122,18 @@ def geochemical_filter(df, phase, total_perc=None, percentiles=None):
     # Exclude 'Sample Name' column from common columns
     common_columns1.discard('Sample_ID')
     # Drop common columns from df1 and df2 dataframes dataframe
-    df1_dropped = df1.drop(columns=common_columns1, errors='ignore')
+    df1_dropped = df1.drop(columns=common_columns1, errors='ignore').drop_duplicates('Sample_ID')
       # Get common columns between df and df2 dataframes 
-    common_columns2 = set(df.columns).intersection(df2.columns)
+    common_columns2 = set(df1.columns).intersection(df2.columns)
     # Exclude 'Sample Name' column from common columns
     common_columns2.discard('Sample_ID')
     # Drop common columns from df1 and df2 dataframes dataframe
-    df2_dropped = df2.drop(columns=common_columns2, errors='ignore')
+    df2_dropped = df2.drop(columns=common_columns2, errors='ignore').drop_duplicates('Sample_ID')
     
-    df = pd.merge(df, df1_dropped, on="Sample_ID", how="left")
+    df = pd.merge(df, df1_dropped, on="Sample_ID", how="left", validate="many_to_one")
 
     # attach pass-2 results to everyone who entered pass 2
-    df = pd.merge(df, df2_dropped, on="Sample_ID", how="left")
+    df = pd.merge(df, df2_dropped, on="Sample_ID", how="left", validate="many_to_one")
 
     return df
 
