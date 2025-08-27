@@ -41,50 +41,25 @@ If only Fe2O3 is available, FeOt = 0.8998 × Fe2O3.
 If only Fe2O3t (total iron reported as Fe2O3) is available, FeOt = 0.8998 × Fe2O3t.
 If Fe2O3t is present alongside FeO or Fe2O3, we ignore Fe2O3t to avoid double counting. You can change that if your dataset semantics demand it.
 """
-def recalc_Fe(df, drop_source_cols=True):
+def recalc_Fe(df):
     df = df.copy()
-
-    # chnage Fe columns to numeric
-    for c in ['FeO', 'Fe2O3', 'Fe2O3t']:
-        if c in df.columns:
-            df[c] = pd.to_numeric(df[c], errors='coerce')
-
-    # Ensure FeOt column exists-this is the final column we will be filling
-    df['FeOt'] = pd.NA
-
-    # Scenario 1: both FeO and Fe2O3 on a row contain values
-    if {'FeO','Fe2O3'}.issubset(df.columns):
-        both = df['FeO'].notna() & df['Fe2O3'].notna()
-        df.loc[both, 'FeOt'] = df.loc[both, 'FeO'] + df.loc[both, 'Fe2O3'] * 0.8998
-
-        # Only FeO
-        only_FeO1 = df['FeO'].notna() & df['Fe2O3'].isna() & df['FeOt'].isna()
-        df.loc[only_FeO1, 'FeOt'] = df.loc[only_FeO1, 'FeO']
-
-        # Only Fe2O3 present
-        only_Fe2O31 = df['Fe2O3'].notna() & df['FeO'].isna() & df['FeOt'].isna()
-        df.loc[only_Fe2O31, 'FeOt'] = df.loc[only_Fe2O31, 'Fe2O3'] * 0.8998
-
-    else:
-        # Scenario 2: If only FeO exists
-        if 'FeO' in df.columns:
-            only_FeO2 = df['FeO'].notna() & df['FeOt'].isna()
-            df.loc[only_FeO2, 'FeOt'] = df.loc[only_FeO2, 'FeO']
-
-        # Scenario 3: If only Fe2O3 exists
-        if 'Fe2O3' in df.columns:
-            only_Fe2O32 = df['Fe2O3'].notna() & df['FeOt'].isna()
-            df.loc[only_Fe2O32, 'FeOt'] = df.loc[only_Fe2O32, 'Fe2O3'] * 0.8998
-
-    # Last resort: Fe2O3t where FeOt is still empty and no other Fe used
-    if 'Fe2O3t' in df.columns:
-        only_Fe2O33 = df['Fe2O3t'].notna() & df['FeOt'].isna()
-        df.loc[only_Fe2O33, 'FeOt'] = df.loc[only_Fe2O33, 'Fe2O3t'] * 0.8998
-
-    if drop_source_cols:
-        df = df.drop(columns=['Fe2O3t', 'Fe2O3', 'FeO'], errors='ignore')
-
-    return df
+    if 'FeO' in df.columns and 'Fe2O3' in df.columns: 
+        # columns is identifying we're looking for a column heading
+        # case where both FeO and Fe2O3 values are present
+        df.loc[df['FeO'].notna() & df['Fe2O3'].notna(), 'FeOt'] = (
+            df['FeO'] + df['Fe2O3'] * 0.8998
+        ) 
+        # FeO present but Fe2O3 missing
+        df.loc[df['FeO'].notna() & df['Fe2O3'].isna(), 'FeOt'] = df['FeO']
+        # Fe2O3 present but FeO missing
+        df.loc[df['FeO'].isna() & df['Fe2O3'].notna(), 'FeOt'] = df['Fe2O3'] * 0.8998
+    elif 'Fe2O3t' in df.columns:
+        # if only Fe2O3t exists, convert it to FeOt
+        df.loc[df['Fe2O3t'].notna(), 'FeOt'] = df['Fe2O3t'] * 0.8998
+    elif 'FeO' in df.columns:
+        # if only FeO exists, use it directly
+        df.loc[df['FeO'].notna(), 'FeOt'] = df['FeO']
+    return df.drop(columns=['Fe2O3t', 'Fe2O3', 'FeO'], errors='ignore')
 
 
 #Func.2. normallise data anhdrous- only applicable for liq data
