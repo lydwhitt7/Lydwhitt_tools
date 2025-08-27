@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.spatial.distance import mahalanobis
 from scipy.stats import chi2
+from sklearn.covariance import MinCovDet
 
 def geochemical_filter(df, phase, total_perc=None, percentiles=None):
     #remove all rows where Total is <96 or below a designated threshold
@@ -44,14 +45,11 @@ def geochemical_filter(df, phase, total_perc=None, percentiles=None):
             return df, None, None, [0] * len(df)
         
         else:
-            #find the mean vector
-            mean_vector = df.mean().values
-
-            #compute the covariance matrix and how the oxides vary together
-            cov_matrix = np.cov(df.T)
-
-            #invert the covariance matrix, this step adjusts for scale and correlation
-            inv_cov_matrix = np.linalg.inv(cov_matrix)
+            # robust location and scatter using Minimum Covariance Determinant
+            mcd = MinCovDet().fit(df.values)
+            mean_vector = mcd.location_
+            cov_matrix = mcd.covariance_
+            inv_cov_matrix = np.linalg.pinv(cov_matrix)  # safe inverse
 
             #calculate the mahalanobis distance for each row of data. each disnace is a single number, bigger means more different. 
             distances = []
