@@ -56,10 +56,12 @@ def recalc_Fe(df):
         # Fe2O3 present but FeO missing
         df.loc[df['FeO'].isna() & df['Fe2O3'].notna() & df['FeOt'].isna(), 'FeOt'] = df['Fe2O3'] * 0.8998
 
-    elif 'Fe2O3t' in df.columns:
+    if 'Fe2O3t' in df.columns:
+        # fill from Fe2O3t only if FeOt is still blank
         df.loc[df['Fe2O3t'].notna() & df['FeOt'].isna(), 'FeOt'] = df['Fe2O3t'] * 0.8998
 
-    elif 'FeO' in df.columns:
+    if 'FeO' in df.columns and 'Fe2O3' not in df.columns:
+        # FeO only, no Fe2O3 column at all
         df.loc[df['FeO'].notna() & df['FeOt'].isna(), 'FeOt'] = df['FeO']
 
     return df.drop(columns=['Fe2O3t', 'Fe2O3', 'FeO'], errors='ignore')
