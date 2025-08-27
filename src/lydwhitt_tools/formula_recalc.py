@@ -43,24 +43,26 @@ If Fe2O3t is present alongside FeO or Fe2O3, we ignore Fe2O3t to avoid double co
 """
 def recalc_Fe(df):
     df = df.copy()
-    if 'FeO' in df.columns and 'Fe2O3' in df.columns: 
-        # columns is identifying we're looking for a column heading
-        # case where both FeO and Fe2O3 values are present
-        df.loc[df['FeO'].notna() & df['Fe2O3'].notna(), 'FeOt'] = (
-            df['FeO'] + df['Fe2O3'] * 0.8998
-        ) 
-        # FeO present but Fe2O3 missing
-        df.loc[df['FeO'].notna() & df['Fe2O3'].isna(), 'FeOt'] = df['FeO']
-        # Fe2O3 present but FeO missing
-        df.loc[df['FeO'].isna() & df['Fe2O3'].notna(), 'FeOt'] = df['Fe2O3'] * 0.8998
-    elif 'Fe2O3t' in df.columns:
-        # if only Fe2O3t exists, convert it to FeOt
-        df.loc[df['Fe2O3t'].notna(), 'FeOt'] = df['Fe2O3t'] * 0.8998
-    elif 'FeO' in df.columns:
-        # if only FeO exists, use it directly
-        df.loc[df['FeO'].notna(), 'FeOt'] = df['FeO']
-    return df.drop(columns=['Fe2O3t', 'Fe2O3', 'FeO'], errors='ignore')
+    if 'FeOt' not in df.columns:
+        df['FeOt'] = pd.NA   # make sure FeOt exists
 
+    if 'FeO' in df.columns and 'Fe2O3' in df.columns:
+        # both values present
+        df.loc[df['FeO'].notna() & df['Fe2O3'].notna() & df['FeOt'].isna(), 'FeOt'] = (
+            df['FeO'] + df['Fe2O3'] * 0.8998
+        )
+        # FeO present but Fe2O3 missing
+        df.loc[df['FeO'].notna() & df['Fe2O3'].isna() & df['FeOt'].isna(), 'FeOt'] = df['FeO']
+        # Fe2O3 present but FeO missing
+        df.loc[df['FeO'].isna() & df['Fe2O3'].notna() & df['FeOt'].isna(), 'FeOt'] = df['Fe2O3'] * 0.8998
+
+    elif 'Fe2O3t' in df.columns:
+        df.loc[df['Fe2O3t'].notna() & df['FeOt'].isna(), 'FeOt'] = df['Fe2O3t'] * 0.8998
+
+    elif 'FeO' in df.columns:
+        df.loc[df['FeO'].notna() & df['FeOt'].isna(), 'FeOt'] = df['FeO']
+
+    return df.drop(columns=['Fe2O3t', 'Fe2O3', 'FeO'], errors='ignore')
 
 #Func.2. normallise data anhdrous- only applicable for liq data
 def norm_anhy(df):
