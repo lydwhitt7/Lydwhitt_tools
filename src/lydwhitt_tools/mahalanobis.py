@@ -4,7 +4,7 @@ from scipy.spatial.distance import mahalanobis
 from scipy.stats import chi2
 from sklearn.covariance import MinCovDet
 
-def geochemical_filter(df, phase, total_perc=None, percentiles=None):
+def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
     #remove all rows where Total is <96 or below a designated threshold
     if total_perc is None:
         total = 96
@@ -151,4 +151,6 @@ def geochemical_filter(df, phase, total_perc=None, percentiles=None):
 
 
 
+#define function
 
+#

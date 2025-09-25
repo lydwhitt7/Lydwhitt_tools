@@ -13,17 +13,16 @@ pip install lydwhitt-tools
 
 ---
 
-## Quickstart
-Here’s the simplest way to run the geochemical filter tool:
-import pandas as pd
-import lydwhitt_tools as lwt
-Load your geochemical dataset
-df = pd.read_csv("my_data.csv")
-Apply the filter (defaults: total_perc=96, percentiles=(98, 98))
-filtered_df = lwt.geochemical_filter(df, phase="Cpx")
-print(filtered_df.head())
+## Available tools
+`gechemical_filter(df, phase, total_perc=None, percentiles=None)`: This function is used to filter geochemical datasets using the Mahalanobis distance method in two passes. Please note the fuction filters out rows with totals <96 (default) prior to performing the mahalnobis test passes but re-adds them after processing so they can be plotted. dataframes will need filtering for this and both test results after function is used. 
 
+`KDE(df, 'column')` : This function creates a plottable KDE line for a column of values in a dataframe using the imporved sheather jones method to establish bandwidth. This methodology uses an integrated r script rather thna the usual python computing as this is more preferable in geochemical studies. 
 
+`MD(x, y, z)` : This function finds the value of the first peak found using the KDE function based on a minimum height threshold (may need adjusting per dataset). 
+
+`iqr_one_peak(df, 'data', z)` : This function finds the MD peak as with the previous function but also gives you the Q1 and Q3 range of each dataset.
+
+`recalc(df, phase, anhydrous=True, mol_values=True)` : This function calculates the apfu or cation fraction of major elment data for Plg, Cpx, Ol and Liq (WR/Glass/MI) data. anhydrous needs to be specified for Liq data and if you dont want the mol fractions in the final dataframe just add the mol_values=true. 
 ---
 
 ## Detailed Usage
