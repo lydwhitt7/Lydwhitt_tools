@@ -213,3 +213,11 @@ def recalc(df, phase, anhydrous=True, mol_values=True):
         df = df.drop(columns=[col for col in df.columns if col.endswith('_mol')], errors='ignore')
 
     return df
+
+def iron_ratios(df, ratio):
+    df['Fe_wt'] = df['FeOT'] * (Fe_molar_mass / FeO_molar_mass)
+    df['Fe3_wt'] = df['Fe_wt'] * ratio
+    df['Fe2_wt'] = df['Fe_wt'] * (1 - ratio)
+    df['Fe2O3'] = df['Fe3_wt'] * (Fe2O3_molar_mass / (2 * Fe_molar_mass))
+    df['FeO'] = df['Fe2_wt'] * (FeO_molar_mass / Fe_molar_mass)
+    return df

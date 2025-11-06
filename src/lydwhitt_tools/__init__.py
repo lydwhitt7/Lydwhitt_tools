@@ -1,7 +1,7 @@
 # Public API
 from .mahalanobis import mahalanobis_filter
 from .KDE import KDE, MD, iqr_one_peak
-from .formula_recalc import recalc, recalc_Fe
+from .formula_recalc import recalc, recalc_Fe, iron_ratios
 from .filter import geoscore_filter, filter_fig
 
 try:
