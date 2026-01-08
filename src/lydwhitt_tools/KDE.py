@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, peak_widths
 import rpy2.robjects as robjects
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
@@ -77,30 +77,57 @@ def MD(x, y, z=None):
     return float(x_arr[best_idx])
 
 
-#    Calculate the IQR for the entire data based on the peak in the KDE. It returns a tuple containing the peak location (peak_x), Q1 and Q3 values for the entire dataset.
+# Calculate a peak-specific IQR by isolating the data around the dominant KDE peak.
+# Returns a tuple: (peak_x, Q1_peak, Q3_peak)
+# - df, col: original data
+# - z: minimum KDE peak height threshold
+# The peak window is estimated using the KDE full-width-at-half-maximum (FWHM).
 def iqr_one_peak(df, col, z):
-    # Generate KDE using your custom function
+    # --- 1) Generate KDE for the column ---
     kde_df = KDE(df, col)
+    x_kde = np.asarray(kde_df['x'])
+    y_kde = np.asarray(kde_df['y'])
 
-    # Extract x_kde and y_kde from the DataFrame
-    x_kde = kde_df['x']
-    y_kde = kde_df['y']
+    # Remove NaNs from KDE curve (paired)
+    mask = np.isfinite(x_kde) & np.isfinite(y_kde)
+    x_kde = x_kde[mask]
+    y_kde = y_kde[mask]
 
-    # Find peaks in the KDE
-    peaks, _ = find_peaks(y_kde, height = z)
+    if x_kde.size == 0:
+        return "No KDE values found (empty after removing NaNs)."
 
-    # Process the first peak if it exists
-    if len(peaks) >= 1:
-        peak = peaks[0]
-        peak_x = x_kde.iloc[peak]
+    # --- 2) Select the dominant KDE peak using the existing MD() function ---
+    # MD returns the x-location of the dominant peak (optionally above a minimum height threshold z)
+    peak_x = MD(x_kde, y_kde, z=z)
 
-        # Calculate the Q1 and Q3 for the entire dataset
-        Q1 = np.percentile(df[col], 25)
-        Q3 = np.percentile(df[col], 75)
+    # Convert the peak_x location back to the nearest index for peak_widths()
+    peak = int(np.nanargmin(np.abs(x_kde - peak_x)))
 
-        return peak_x, Q1, Q3
-    else:
-        return "No peaks found in the KDE."
+    # --- 3) Estimate a window around the dominant peak using FWHM ---
+    # peak_widths returns left/right positions in index-space; convert to x using interpolation
+    widths, _, left_ips, right_ips = peak_widths(y_kde, [peak], rel_height=0.5)
+    left_i = float(left_ips[0])
+    right_i = float(right_ips[0])
+
+    idx = np.arange(len(x_kde), dtype=float)
+    left_x = float(np.interp(left_i, idx, x_kde))
+    right_x = float(np.interp(right_i, idx, x_kde))
+
+    # Ensure bounds are ordered
+    lo, hi = (left_x, right_x) if left_x <= right_x else (right_x, left_x)
+
+    # --- 4) Subset the ORIGINAL data around that peak window and compute peak-specific IQR ---
+    data = np.asarray(df[col])
+    data = data[np.isfinite(data)]
+
+    peak_data = data[(data >= lo) & (data <= hi)]
+    if peak_data.size == 0:
+        return "No original data points fell within the dominant peak window."
+
+    Q1 = float(np.percentile(peak_data, 25))
+    Q3 = float(np.percentile(peak_data, 75))
+
+    return peak_x, Q1, Q3
 
 # Example usage:
-# peak_x, Q1, Q3 = iqr_one_peak(df, 'data')
+# peak_x, Q1, Q3 = iqr_one_peak(df, 'data', z=0.02)
