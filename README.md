@@ -1,6 +1,6 @@
 # Lydwhitt_tools
 
-A collection of functions and tools I have developed and find useful from my volcanology PhD.
+A collection of functions and tools I have developed and find useful during my volcanology PhD.
 
 Whilst I have a lot of tools and functions on my computer that I use regularly, I haven't yet put them all in a place to help others. There are a lot of very simple tasks that waste time, which I've created tools to complete, and I will be adding them to this repository over time.
 
@@ -23,9 +23,9 @@ pip install lydwhitt-tools
 
 `KDE(df, 'column')` : This function creates a plottable KDE line for a column of values in a dataframe using the imporved sheather jones method to establish bandwidth. This methodology uses an integrated r script rather than the usual python computing as this is more preferable in geochemical studies. Requires an R installation and the rpy2 Python package. 
 
-`MD(x, y, z)` : This function finds the value of the first peak found using the KDE function based on a minimum height threshold (may need adjusting per dataset). 
+`MD(x, y, z=None)` : Returns the x-value at the highest point of a KDE curve (the dominant peak). Optionally set `z` as a minimum peak height to ignore low-amplitude peaks.
 
-`iqr_one_peak(df, 'data', z)` : This function finds the MD peak as with the previous function but also gives you the Q1 and Q3 range of each dataset.
+`iqr_one_peak(df, 'data', z)` : Finds the dominant KDE peak (above a minimum height threshold) and returns that peak location plus a peak-specific IQR (Q1 and Q3) computed only from original data points within the dominant peak window.
 
 `recalc(df, phase, anhydrous=True, mol_values=True)` : This function calculates the apfu or cation fraction of major elment data for Plg, Cpx, Ol and Liq (WR/Glass/MI) data. anhydrous needs to be specified for Liq data and if you dont want the mol fractions in the final dataframe just add mol_values=true.
 
@@ -46,7 +46,7 @@ These notebooks show typical inputs, outputs, and common usage patterns.
   https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/mahalanobis_filter.ipynb
 
 - `KDE`, `MD`, `iqr_one_peak` 
-  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/KDE.ipynb
+  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/817b5cbb4eafd14d0898a1d0741cf128fb4010bb/src/lydwhitt_tools/examples/KDE.ipynb
 
 - `recalc`  
   https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/recalc.ipynb
