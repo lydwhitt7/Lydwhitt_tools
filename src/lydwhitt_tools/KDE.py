@@ -50,10 +50,31 @@ def KDE(x, y):
 
 # input like this: KDE(df, 'column name')
 #this function finds the highest point of a KDE peak and spits out the value. X and Y are data inputs as they appear on the graph. Parameter Z sets the minimum amplitude of a peak for it to be considered. 
-def MD(x, y, z):
-    MD_FP,_ = find_peaks(y, height = z)
-    MD_MD = (x)[MD_FP[0]]
-    return MD_MD
+# This function returns the x-value at the highest point of the KDE curve (the dominant peak).
+# Optionally, you can pass z to ignore peaks with height below a minimum threshold.
+def MD(x, y, z=None):
+    # Convert to numpy arrays for consistent indexing
+    x_arr = np.asarray(x)
+    y_arr = np.asarray(y)
+
+        # Remove NaNs (keep paired values)
+    mask = np.isfinite(x_arr) & np.isfinite(y_arr)
+    x_arr = x_arr[mask]
+    y_arr = y_arr[mask]
+
+    if x_arr.size == 0:
+        raise ValueError("MD(): x and y contain no finite values.")
+
+    # If a minimum peak height is supplied, pick the highest peak above that threshold
+    if z is not None:
+        peaks, props = find_peaks(y_arr, height=z)
+        if len(peaks) > 0:
+            best_peak = int(peaks[np.argmax(props["peak_heights"])])
+            return float(x_arr[best_peak])
+
+    # Default behaviour: return x at the global maximum of the KDE curve
+    best_idx = int(np.nanargmax(y_arr))
+    return float(x_arr[best_idx])
 
 
 #    Calculate the IQR for the entire data based on the peak in the KDE. It returns a tuple containing the peak location (peak_x), Q1 and Q3 values for the entire dataset.
