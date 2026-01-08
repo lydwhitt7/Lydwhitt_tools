@@ -46,7 +46,7 @@ These notebooks show typical inputs, outputs, and common usage patterns.
   https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/mahalanobis_filter.ipynb
 
 - `KDE`, `MD`, `iqr_one_peak` 
-  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/817b5cbb4eafd14d0898a1d0741cf128fb4010bb/src/lydwhitt_tools/examples/KDE.ipynb
+  https://shorturl.at/eXg4y
 
 - `recalc`  
   https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/recalc.ipynb
