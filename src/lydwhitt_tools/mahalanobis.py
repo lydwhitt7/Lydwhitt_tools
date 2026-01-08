@@ -148,9 +148,3 @@ def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
     df = pd.merge(df, df2_dropped, on="Sample_ID", how="left", validate="many_to_one")
 
     return df
-
-
-
-#define function
-
-#

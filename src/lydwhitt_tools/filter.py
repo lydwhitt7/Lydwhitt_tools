@@ -7,15 +7,6 @@ import matplotlib.gridspec as gridspec
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 
-# Coding patterns used in this file:
-# 1. Masks for which rows are available to use
-# 2. Sort by t, operate, then unsort
-# 3. Quantile bin smoother as a fallback
-# 4. Broadcasting pattern vals[:, None] - centers[None, :]
-# 5. GridSpec slotting with _ax_at helper
-# 6. Dict of Series as the function return pattern
-# 7. df.attrs for small metadata passed to plotting
-
 
 def make_phase_rules(df, phase):
     """
@@ -67,8 +58,6 @@ def make_phase_rules(df, phase):
 
 
 # -------- Smoothing --------
-
-
 # --- Helper: quantile-median fallback smoother ---
 def _default_quantile_median_smoother(y, x, frac=0.2):
     """Fallback smoother: bin x into ~1/frac quantile bins and use median(y) per bin."""
@@ -528,7 +517,7 @@ def geoscore_filter(
     df_phase["trend_axis_medianabs"] = trend_out["trend_axis_medianabs"]
     df_phase["trend_score"] = trend_out["trend_score"]
 
-    # (3) KDE/HDR -> mode_hits (+ optional membership)
+    # KDE/HDR -> mode_hits (+ optional membership)
     kde_out = KDE_mode_hits(df_phase, mode_columns, return_matrix=return_membership)
     df_phase["mode_hits"] = kde_out["mode_hits"]
     df_phase["cluster_score"] = kde_out.get("cluster_score", pd.Series(np.nan, index=df_phase.index))

@@ -1,6 +1,6 @@
 # Lydwhitt_tools
 
-A collection of functions and tools I have developed and find useful during my volcanology PhD.
+A collection of functions and tools I have developed and find useful from my volcanology PhD.
 
 Whilst I have a lot of tools and functions on my computer that I use regularly, I haven't yet put them all in a place to help others. There are a lot of very simple tasks that waste time, which I've created tools to complete, and I will be adding them to this repository over time.
 
@@ -14,52 +14,53 @@ pip install lydwhitt-tools
 ---
 
 ## Available tools
-`gechemical_filter(df, phase, total_perc=None, percentiles=None)`: This function is used to filter geochemical datasets using the Mahalanobis distance method in two passes. Please note the fuction filters out rows with totals <96 (default) prior to performing the mahalnobis test passes but re-adds them after processing so they can be plotted. dataframes will need filtering for this and both test results after function is used. 
 
-`KDE(df, 'column')` : This function creates a plottable KDE line for a column of values in a dataframe using the imporved sheather jones method to establish bandwidth. This methodology uses an integrated r script rather thna the usual python computing as this is more preferable in geochemical studies. 
+`geoscore_filter(df, phase, smooth_fn=None, smooth_kwargs=None, return_membership=False)`: End-to-end geochemical filtering pipeline (Liq, Plg, Cpx). Recalculates phase chemistry, fits smooth compositional trends against a progress variable, scores each analysis by how well it follows the main trend (robust local z) and how well it sits within the main high-density KDE modes (HDR membership plus proximity). Returns a continuous `geo_score` (0 to 1) and a boolean `final_pass`, plus optional membership diagnostics for debugging and plotting.
+
+`filter_fig(df, diagnostics=None, geo_min=None, combine_mode=None, t_col=None, figsize=(18, 15), label_fs=11, tick_fs=9)`: Diagnostic plot for `geoscore_filter` results. Builds a multi-panel figure showing the geo_score distribution, the decision space (trend_score vs cluster_score), trend deviation versus the progress variable, retention versus threshold, Harker-style scatter plots with fitted trends, and KDE curves with the kept high-density (HDR) bands.
+
+`mahalanobis_filter(df, phase, total_perc=None, percentiles=None)` : Two-pass multivariate outlier filter using robust Mahalanobis distance. Filters analyses by oxide totals, computes distances using a Minimum Covariance Determinant estimator, and applies chi-square thresholds to flag outliers in two stages. Returns the original dataframe with pass-1 and pass-2 distances, p-values, and outlier flags merged back for plotting and comparison.
+
+`KDE(df, 'column')` : This function creates a plottable KDE line for a column of values in a dataframe using the imporved sheather jones method to establish bandwidth. This methodology uses an integrated r script rather than the usual python computing as this is more preferable in geochemical studies. Requires an R installation and the rpy2 Python package. 
 
 `MD(x, y, z)` : This function finds the value of the first peak found using the KDE function based on a minimum height threshold (may need adjusting per dataset). 
 
 `iqr_one_peak(df, 'data', z)` : This function finds the MD peak as with the previous function but also gives you the Q1 and Q3 range of each dataset.
 
-`recalc(df, phase, anhydrous=True, mol_values=True)` : This function calculates the apfu or cation fraction of major elment data for Plg, Cpx, Ol and Liq (WR/Glass/MI) data. anhydrous needs to be specified for Liq data and if you dont want the mol fractions in the final dataframe just add the mol_values=true. 
----
+`recalc(df, phase, anhydrous=True, mol_values=True)` : This function calculates the apfu or cation fraction of major elment data for Plg, Cpx, Ol and Liq (WR/Glass/MI) data. anhydrous needs to be specified for Liq data and if you dont want the mol fractions in the final dataframe just add mol_values=true.
 
-## Detailed Usage
-The `geochemical_filter` function filters geochemical datasets using the Mahalanobis distance method in two passes.
+`recalc_Fe(df)` : Ensures a single total-iron column (`FeOt`) is present by recalculating it from any combination of `FeO`, `Fe2O3`, or `Fe2O3t` (converting Fe2O3 to FeO equivalents). Preserves existing `FeOt` values and drops raw iron oxide columns.
 
-**Function signature:**
-lwt.geochemical_filter(df, phase, total_perc=None, percentiles=None)
-
-**Parameters:**
-- `phase` *(str)* – e.g., `"Cpx"`, `"Plg"`, `"Liq"`. Must match the suffix used after oxide wt% values in your dataset.
-- `total_perc` *(float, optional)* – Minimum total oxide percentage allowed. Defaults to `96`.
-- `percentiles` *(int, float, or tuple, optional)* – Percentile cutoffs for Pass 1 and Pass 2.  
-  - Single value applies to both passes (e.g., `percentiles=98`).  
-  - Tuple gives different cutoffs for each pass (e.g., `percentiles=(95, 99)`).
-
-**Example:**
-Use different percentiles for each pass
-filtered_df = lwt.geochemical_filter(df, phase="Plg", total_perc=97, percentiles=(95, 99))
+`iron_ratios(df, ratio)` : Splits `FeOt_Liq` into `FeO_Liq` and `Fe2O3_Liq` using a supplied Fe3+/FeT ratio. Adds `Fe_wt`, `Fe3_wt`, and `Fe2_wt` intermediate columns and returns the updated dataframe.
 
 ---
+## Usage examples
 
-## Output
-The function returns the filtered DataFrame, including flags for each pass:
-- `Mahalanobis` – Mahalanobis distance for each row in the given pass.
-- `P1_Outlier` – Boolean flag indicating if the row was an outlier in Pass 1.
-- `P2_Outlier` – Boolean flag indicating if the row was an outlier in Pass 2.
+Worked examples for each function are provided as Jupyter notebooks on GitHub.  
+These notebooks show typical inputs, outputs, and common usage patterns.
 
+- `geoscore_filter`, `filter_fig`
+  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/geoscore_filter.ipynb
+
+- `mahalanobis_filter`  
+  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/mahalanobis_filter.ipynb
+
+- `KDE`, `MD`, `iqr_one_peak` 
+  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/KDE.ipynb
+
+- `recalc`  
+  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/recalc.ipynb
+
+- `recalc_Fe`, `iron_ratios` 
+  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/iron_Fe.ipynb
 ---
 
 ## Features Coming Soon
 This repository will grow to include:
--formula recalculations for different phases
--simple plotting frameworks
 -data re-oragnisation tools for popular gothermobarometry packages
 
-
-
+---
+please contact Lydia: whittakl@tcd.ie with any further questions
 ---
 
 ## License
