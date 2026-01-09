@@ -40,7 +40,7 @@ Worked examples for each function are provided as Jupyter notebooks on GitHub.
 These notebooks show typical inputs, outputs, and common usage patterns.
 
 - `geoscore_filter`, `filter_fig`
-  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/geoscore_filter.ipynb
+  https://shorturl.at/n7TYf
 
 - `mahalanobis_filter`  
   https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/mahalanobis_filter.ipynb
