@@ -34,8 +34,7 @@ pip install lydwhitt-tools
 `iron_ratios(df, ratio)` : Splits `FeOt_Liq` into `FeO_Liq` and `Fe2O3_Liq` using a supplied Fe3+/FeT ratio. Adds `Fe_wt`, `Fe3_wt`, and `Fe2_wt` intermediate columns and returns the updated dataframe.
 
 ---
-## Usage examples
-
+## Worked Examples
 Worked examples for each function are provided as Jupyter notebooks on GitHub.  
 These notebooks show typical inputs, outputs, and common usage patterns.
 
@@ -43,16 +42,13 @@ These notebooks show typical inputs, outputs, and common usage patterns.
   https://shorturl.at/n7TYf
 
 - `mahalanobis_filter`  
-  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/mahalanobis_filter.ipynb
+  in progress.
 
 - `KDE`, `MD`, `iqr_one_peak` 
   https://shorturl.at/eXg4y
 
-- `recalc`  
-  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/recalc.ipynb
-
-- `recalc_Fe`, `iron_ratios` 
-  https://nbviewer.org/github/lydwhitt7/Lydwhitt_tools/blob/main/examples/iron_Fe.ipynb
+- `recalc`, `recalc_Fe`, `iron_ratios` 
+  https://shorturl.at/ZH8vM
 ---
 
 ## Features Coming Soon
