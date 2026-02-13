@@ -44,7 +44,7 @@ If Fe2O3t is present alongside FeO or Fe2O3, we ignore Fe2O3t to avoid double co
 def recalc_Fe(df):
     df = df.copy()
     if 'FeOt' not in df.columns:
-        df['FeOt'] = pd.NA   # make sure FeOt exists
+        df['FeOt'] = np.nan   # make sure FeOt exists
 
     if 'FeO' in df.columns and 'Fe2O3' in df.columns:
         # both values present
