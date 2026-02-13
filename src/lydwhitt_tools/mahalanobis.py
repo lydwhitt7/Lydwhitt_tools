@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from scipy.spatial.distance import mahalanobis
-from scipy.stats import chi2
 
 def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
     #remove all rows where Total is <96 or below a designated threshold
@@ -15,11 +14,6 @@ def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
     #Identify columns for analysis, 'type' is anything such as Cpx, Plg or Liq
     suffix = f"{phase}"
     numeric_cols = [col for col in df.columns if col.endswith(suffix)]
-
-    p = len(numeric_cols)  # degrees of freedom for chi-square
-    if p < 2:
-        raise ValueError("Need at least 2 numeric columns to compute Mahalanobis distances.")
-
 
     #Keep Sample_ID column
     id_col = "Sample_ID"
@@ -65,7 +59,7 @@ def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
 
             return distances
         
-    def resolve_quantiles(percentiles):
+    def resolve_percentiles(percentiles):
 
             default = (98, 98)
 
@@ -78,23 +72,19 @@ def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
             else:
                 raise ValueError("percentiles must be None, a number, or a pair like (95, 99).")
 
-            for q in (p1, p2):
-                if not (0 < q <= 100):
-                    raise ValueError(f"Percentile {q} must be in (0, 100].")
+            for p in (p1, p2):
+                if not (0 < p <= 100):
+                    raise ValueError(f"Percentile {p} must be in (0, 100].")
 
             return p1, p2
     
-    p1, p2 = resolve_quantiles(percentiles)
-    print(f"Using chi-square quantiles: {p1}%, {p2}%  (df={p})")
-
+    p1, p2 = resolve_percentiles(percentiles)
+    
     #run initial mahalanobis test over dataset
     distances1 = mahalnobis_test(df1_numeric)
-    d1_sq = np.square(distances1)
-    df1['Mahalanobis1_sq'] = d1_sq
-    df1['P1_pval'] = 1.0 - chi2.cdf(d1_sq, df=p)  # p already defined in Stage 1
 
-    #define a threshold for pass 1, larger numbers will be considered outliers. 
-    threshold1 = np.sqrt(chi2.ppf(p1/100.0, df=p))
+    #define a threshold for pass 1, larger numbers will be considered outliers. we use the 95th percentile
+    threshold1 = np.percentile(distances1, p1)
 
     #flag outliers
     df1['Mahalanobis1'] = distances1
@@ -114,12 +104,9 @@ def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
     
     #complete second pass of test
     distances2 = mahalnobis_test(df2_numeric)
-    d2_sq = np.square(distances2)
-    df2['Mahalanobis2_sq'] = d2_sq
-    df2['P2_pval'] = 1.0 - chi2.cdf(d2_sq, df=p)
 
     #define a threshold for pass 2, we use the 99th percentile
-    threshold2 = np.sqrt(chi2.ppf(p2/100.0, df=p))
+    threshold2 = np.percentile(distances2, p2)
 
     #flag outliers from second pass
     df2['Mahalanobis2'] = distances2
@@ -129,7 +116,6 @@ def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
 
     print(f"Pass 2: {df3.shape[0]} rows retained")
     print(f"Total rows lost: {df1.shape[0]-df3.shape[0]}")
-
 
     # Get common columns between df and df1 dataframes 
     common_columns1 = set(df.columns).intersection(df1.columns)
