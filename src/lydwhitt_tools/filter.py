@@ -40,7 +40,7 @@ def make_phase_rules(df, phase):
         features = ["CaO_Plg","Na2O_Plg","K2O_Plg","Al2O3_Plg","SiO2_Plg","FeOt_Plg","MgO_Plg"]
         mode_columns = ["CaO_Plg","Na2O_Plg","K2O_Plg","Al2O3_Plg","SiO2_Plg"]
         trend_axes = ["CaO_Plg","Na2O_Plg","K2O_Plg"]  # vs An
-        t_name = "An"
+        t_name = "An_num"
 
     else:  # Cpx
         features = ["SiO2_Cpx","TiO2_Cpx","Al2O3_Cpx","FeOt_Cpx","MnO_Cpx","MgO_Cpx","CaO_Cpx","Na2O_Cpx","Cr2O3_Cpx"]
