@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from scipy.spatial.distance import mahalanobis
 from scipy.stats import chi2
-from sklearn.covariance import MinCovDet
 
 def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
     #remove all rows where Total is <96 or below a designated threshold
@@ -45,11 +44,14 @@ def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
             return df, None, None, [0] * len(df)
         
         else:
-            # robust location and scatter using Minimum Covariance Determinant
-            mcd = MinCovDet().fit(df.values)
-            mean_vector = mcd.location_
-            cov_matrix = mcd.covariance_
-            inv_cov_matrix = np.linalg.pinv(cov_matrix)  # safe inverse
+            #find the mean vector
+            mean_vector = df.mean().values
+
+            #compute the covariance matrix and how the oxides vary together
+            cov_matrix = np.cov(df.T)
+
+            #invert the covariance matrix, this step adjusts for scale and correlation
+            inv_cov_matrix = np.linalg.inv(cov_matrix)
 
             #calculate the mahalanobis distance for each row of data. each disnace is a single number, bigger means more different. 
             distances = []
@@ -148,3 +150,7 @@ def mahalanobis_filter(df, phase, total_perc=None, percentiles=None):
     df = pd.merge(df, df2_dropped, on="Sample_ID", how="left", validate="many_to_one")
 
     return df
+
+
+
+
